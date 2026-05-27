@@ -13,9 +13,14 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+let dbConnectionError = null;
+
 // LỚP BẢO VỆ CHỐNG TREO MÁY CHỦ: Báo lỗi ngay lập tức về Web nếu MongoDB bị mất kết nối
 app.use((req, res, next) => {
     if (!isDBConnected && req.path.startsWith('/api/') && req.path !== '/api/movies') {
+        if (dbConnectionError) {
+            return res.status(500).json({ message: `Lỗi kết nối CSDL: ${dbConnectionError}` });
+        }
         return res.status(500).json({ message: 'Lỗi Hệ Thống: Máy chủ chưa kết nối được Cơ sở dữ liệu (MongoDB). Vui lòng kiểm tra lại cấu hình MONGODB_URI trên Render hoặc mở IP (0.0.0.0/0) trên trang MongoDB Atlas!' });
     }
     next();
@@ -52,15 +57,20 @@ const initSuperAdmin = async () => {
 
 if (!mongoURI) {
     console.error('❌ CẢNH BÁO: Chưa có biến môi trường MONGODB_URI trên hệ thống Render!');
+    dbConnectionError = 'Bạn chưa thiết lập biến môi trường MONGODB_URI trên Render.';
 } else {
     // serverSelectionTimeoutMS: 5000 giúp máy chủ không bị treo nếu không tìm thấy Database
     mongoose.connect(mongoURI, { serverSelectionTimeoutMS: 5000 })
         .then(() => {
             console.log('✅ Đã kết nối cơ sở dữ liệu MongoDB thành công!');
             isDBConnected = true;
+            dbConnectionError = null;
             initSuperAdmin(); // Chạy tạo tài khoản bảo mật
         })
-        .catch(err => console.error('❌ Lỗi kết nối MongoDB:', err.message));
+        .catch(err => {
+            console.error('❌ Lỗi kết nối MongoDB:', err.message);
+            dbConnectionError = err.message;
+        });
 }
 
 // Tạo Schema (Cấu trúc dữ liệu) cho Truyện
