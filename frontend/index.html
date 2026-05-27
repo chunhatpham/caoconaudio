@@ -1,0 +1,830 @@
+<!DOCTYPE html>
+<html lang="vi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    
+    <title>Cáo Con - Thiên Đường Giải Trí Audio</title>
+    <meta name="description" content="Chào mừng bạn đến với thiên đường giải trí Cáo Con – nền tảng chuyên cung cấp truyện hoạt hình & truyện tranh Audio Vietsub chất lượng cao, nội dung hay và mới lạ nhất.">
+    <link rel="icon" href="https://i.postimg.cc/25nNvXsX/BFA37734-56C0-4950-A46C-3952E9F1A499.png" type="image/png">
+
+    <!-- Cấu hình PWA (Thêm vào màn hình chính) -->
+    <link rel="manifest" href="manifest.json">
+    <meta name="theme-color" content="#ff5e00">
+    <link rel="apple-touch-icon" href="https://i.postimg.cc/25nNvXsX/BFA37734-56C0-4950-A46C-3952E9F1A499.png">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="caocon">
+
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+<body>
+
+    <div id="adProgressToast" class="ad-progress-toast">
+        <div style="display: flex; align-items: center; gap: 10px; width: 100%;">
+            <i class="fa-solid fa-shield-halved" style="color: var(--accent-color); font-size: 20px;"></i>
+            <span id="adProgressText" style="font-size: 18px;">Tiến Độ: 0/3</span>
+        </div>
+        <div style="font-size: 13px; font-weight: 500; color: var(--text-muted); line-height: 1.5; margin-top: 5px;">
+            Bạn vui lòng bấm đủ ba lần để mở bộ phim lên nhá, nếu không muốn có quảng cáo hãy mua gói tắt quảng cáo hoặc lên Premium nhá.
+        </div>
+    </div>
+
+    <div class="modal-overlay active" id="welcomeAlertModal">
+        <div class="modal-box">
+            <i class="fa-solid fa-hand-sparkles" style="font-size: 45px; color: var(--accent-color); margin-bottom: 20px;"></i>
+            <h3>Chào Mừng!</h3>
+            <p>Chào mừng bạn đến với web Cáo Con. Chúng tôi luôn cập nhật phim hay và mới nhất tại đây ạ !!!</p>
+            <button onclick="closeWelcomeAlert()" class="btn-primary">Đã hiểu</button>
+        </div>
+    </div>
+
+    <div class="loader-overlay" id="loader">
+        <div class="spinner-container">
+            <div class="spinner-ring"></div>
+            <img src="https://i.postimg.cc/25nNvXsX/BFA37734-56C0-4950-A46C-3952E9F1A499.png" alt="Loading Avatar" class="loader-avatar">
+        </div>
+    </div>
+
+    <div class="modal-overlay" id="customModal">
+        <div class="modal-box">
+            <i class="fa-solid fa-bell" id="modalIcon" style="font-size: 45px; margin-bottom: 20px;"></i>
+            <h3 id="modalTitle">Thông báo</h3>
+            <p id="modalMessage">Nội dung thông báo...</p>
+            <button onclick="closeModal()" class="btn-primary">Đóng</button>
+        </div>
+    </div>
+
+    <!-- MÀN HÌNH CHÚC MỪNG NẠP TIỀN THÀNH CÔNG -->
+    <div class="deposit-success-overlay" id="depositSuccessModal">
+        <div class="deposit-success-box">
+            <div class="success-icon-wrap"><i class="fa-solid fa-check"></i></div>
+            <h3>Nạp Tiền Thành Công!</h3>
+            <p>Số tiền đã được cộng vào tài khoản của bạn</p>
+            <div class="success-amount" id="successAmountText">+0đ</div>
+            <button onclick="closeSuccessModal()" class="btn-primary" style="margin-top: 20px; width: 100%;">Tuyệt Vời</button>
+        </div>
+    </div>
+
+    <!-- MODAL XÁC NHẬN MUA PREMIUM -->
+    <div class="modal-overlay" id="premiumConfirmModal">
+        <div class="modal-box" style="text-align: center; max-width: 400px;">
+            <i class="fa-solid fa-gem" style="font-size: 50px; margin-bottom: 15px;" id="confirmPremIcon"></i>
+            <h3 id="confirmPremTitle" style="margin-bottom: 10px;">Xác Nhận Mua Gói</h3>
+            <div style="background: var(--bg-main); padding: 15px; border-radius: 15px; margin-bottom: 20px; text-align: left;">
+                <p style="margin-bottom: 8px; font-size: 14px; color: var(--text-muted);">Gói đã chọn: <strong id="confirmPremName" style="color: var(--text-main); font-size: 15px; float: right;">Premium 1 Tháng</strong></p>
+                <p style="margin-bottom: 8px; font-size: 14px; color: var(--text-muted);">Giá tiền: <strong id="confirmPremPrice" style="color: #ff3b30; font-size: 16px; float: right;">70.000đ</strong></p>
+                <hr style="border: none; border-top: 1px dashed var(--glass-border); margin: 12px 0;">
+                <p style="margin-bottom: 0; font-size: 14px; color: var(--text-muted);">Số dư hiện tại: <strong id="confirmPremBalance" style="color: #34c759; font-size: 16px; float: right;">0đ</strong></p>
+            </div>
+            <div style="display: flex; gap: 10px;">
+                <button class="btn-primary" style="background: #8e8e93; flex: 1; box-shadow: none;" onclick="closePremiumConfirm()">Hủy</button>
+                <button class="btn-primary" id="btnExecutePrem" style="flex: 1;">Xác Nhận Mua</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- MODAL CHÚC MỪNG MUA PREMIUM THÀNH CÔNG -->
+    <div class="deposit-success-overlay" id="premiumSuccessModal">
+        <div class="deposit-success-box" style="border-color: #fbbf24;">
+            <div class="success-icon-wrap" style="background: #fbbf24; box-shadow: 0 10px 25px rgba(251, 191, 36, 0.4);"><i class="fa-solid fa-crown"></i></div>
+            <h3 style="color: #d97706;">Nâng Cấp Thành Công!</h3>
+            <p>Cảm ơn bạn đã đồng hành. Đặc quyền của bạn đã được kích hoạt.</p>
+            <div class="success-amount" id="successPremText" style="color: #d97706; background: #fef3c7; box-shadow: inset 0 2px 10px rgba(251,191,36,0.2); font-size: 20px; padding: 12px; margin-bottom: 0;">Hạng Vàng</div>
+            <button onclick="closePremiumSuccess()" class="btn-primary" style="margin-top: 20px; width: 100%; background: linear-gradient(135deg, #fbbf24, #f59e0b);">Tuyệt Vời</button>
+        </div>
+    </div>
+
+    <!-- MÀN HÌNH QUÉT MÃ QR THANH TOÁN (MỚI) -->
+    <div class="modal-overlay" id="qrPaymentModal">
+        <div class="modal-box qr-modal-box">
+            <h3 class="qr-modal-title">Thanh Toán Quét Mã QR</h3>
+            <div class="qr-image-wrapper">
+                <img id="qrImage" src="" alt="QR Code">
+            </div>
+            <div class="qr-info-box">
+                <p class="qr-info-row"><span>Ngân hàng:</span> <strong>MSB</strong></p>
+                <p class="qr-info-row"><span>Số tài khoản:</span> <strong class="qr-account-highlight" id="qrAccount">96886693012894</strong></p>
+                <p class="qr-info-row"><span>Chủ tài khoản:</span> <strong>CAO CON AUDIO</strong></p>
+                <div class="qr-desc-box">
+                    <p class="qr-desc-label">Nội dung chuyển khoản (Bắt buộc):</p>
+                    <p id="qrDescription" class="qr-desc-content"></p>
+                </div>
+            </div>
+            <p class="qr-waiting-text"><i class="fa-solid fa-spinner fa-spin"></i> Đang chờ thanh toán...</p>
+            <button class="btn-primary cancel-qr-btn" onclick="closeQR('CANCELLED')">Hủy Giao Dịch</button>
+        </div>
+    </div>
+
+    <div class="overlay" id="menuOverlay"></div>
+
+    <div class="movie-detail-modal" id="movieDetailModal">
+        <div class="movie-detail-box">
+            <button class="close-detail-btn" onclick="closeMovieDetail()"><i class="fa-solid fa-xmark"></i></button>
+            <div class="detail-poster" id="detailPoster"></div>
+            <h2 class="detail-title" id="detailTitle">Tên Phim Đang Cập Nhật</h2>
+            <div class="detail-publisher"><i class="fa-solid fa-building"></i> Nhà xuất bản: Cáo Con Audio</div>
+            
+            <div class="movie-stats">
+                <span class="stat-item"><i class="fa-solid fa-headphones"></i> <span id="detailViews">0</span> Lượt nghe</span>
+                <button class="stat-btn" id="likeMovieBtn"><i class="fa-solid fa-heart"></i> <span id="detailLikes">0</span> Thích</button>
+            </div>
+
+            <div class="seasons-container" id="seasonsList">
+                <!-- Các nút SS sẽ được chèn bằng JS -->
+            </div>
+
+            <div class="premium-notice-box">
+                <h4><i class="fa-solid fa-crown" style="color: #ffd700;"></i> Gửi các tình yêu!</h4>
+                <p>Chào bạn, bạn đang nghe audio tại web chunhatpham audio. Muốn nghe trọn bộ truyện thì lên Premium nhé. Ủng hộ Ad để có kinh phí duy trì web nha, cảm ơn các tình yêu rất nhiều! ❤️</p>
+                <button class="btn-primary premium-btn" onclick="closeMovieDetail(); switchTab('premium-tab')">Nâng Cấp Premium Ngay</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- TRÌNH PHÁT NHẠC GLOBAL (GIỐNG SPOTIFY) -->
+    <div class="global-player" id="globalPlayer" style="display: none;">
+        <div class="gp-info">
+            <img src="" alt="Thumbnail" id="gpImage" class="gp-thumb">
+            <div class="gp-text">
+                <div class="gp-title" id="gpTitle">Tên Phim</div>
+                <div class="gp-season" id="gpSeason">Phần 1</div>
+            </div>
+        </div>
+        
+        <div class="gp-controls">
+            <div class="gp-buttons">
+                <button class="ctrl-btn" id="rewindBtn" title="Lùi 10 giây"><i class="fa-solid fa-rotate-left"></i></button>
+                <button class="play-pause-btn" id="playPauseBtn"><i class="fa-solid fa-play" id="playIcon"></i></button>
+                <button class="ctrl-btn" id="forwardBtn" title="Tiến 10 giây"><i class="fa-solid fa-rotate-right"></i></button>
+            </div>
+            <div class="gp-progress">
+                <span id="currentTime">00:00</span>
+                <input type="range" id="progressBar" value="0" min="0" step="1">
+                <span id="totalTime">00:00</span>
+            </div>
+        </div>
+
+        <div class="gp-actions">
+            <button class="ctrl-btn text-btn" id="speedBtn" title="Tốc độ phát">1.0x</button>
+            <button class="ctrl-btn" id="muteBtn" title="Tắt âm"><i class="fa-solid fa-volume-high" id="volumeIcon"></i></button>
+            <button class="ctrl-btn close-gp-btn" onclick="closeGlobalPlayer()" title="Tắt trình phát"><i class="fa-solid fa-xmark"></i></button>
+        </div>
+        
+        <audio id="audioPlayer" preload="auto" style="display: none;"></audio>
+    </div>
+
+    <header>
+        <div class="logo-container" id="logoBtn">
+            <img src="https://i.postimg.cc/25nNvXsX/BFA37734-56C0-4950-A46C-3952E9F1A499.png" alt="Cáo Con Logo">
+            <h1>Cáo Con</h1>
+        </div>
+
+        <div class="right-actions">
+            <!-- Vương Miện Premium (Ẩn mặc định) -->
+            <i class="fa-solid fa-crown action-icon premium-crown-icon" id="headerCrownIcon" title="Hạng Thành Viên"></i>
+            <!-- Tắt Quảng Cáo -->
+            <i class="fa-solid fa-volume-xmark action-icon ad-block-icon" id="headerAdBlockIcon" title="Tắt Quảng Cáo"></i>
+
+            <div style="position: relative; display: flex; align-items: center;">
+                <i class="fa-solid fa-bell action-icon" id="notificationBtn" title="Thông báo"></i>
+                <span class="notification-badge" id="notiBadge" style="display: none;">0</span>
+                
+                <div class="notification-dropdown" id="notificationDropdown">
+                    <div class="noti-header">
+                        <h4>Thông báo</h4>
+                        <button id="markAllReadBtn">Đã đọc tất cả</button>
+                    </div>
+                    <div class="noti-list" id="notiList">
+                        <div class="noti-empty">Bạn chưa có thông báo nào</div>
+                    </div>
+                </div>
+            </div>
+            <i class="fa-solid fa-magnifying-glass action-icon" id="searchBtn" title="Tìm kiếm"></i>
+            <i class="fa-solid fa-bars action-icon" id="menuBtn" title="Menu"></i>
+        </div>
+    </header>
+
+    <nav class="side-menu" id="sideMenu">
+        <div class="side-menu-header">
+            <h2>Mục Lục</h2>
+            <i class="fa-solid fa-xmark close-menu-icon" id="closeMenuBtn" title="Đóng"></i>
+        </div>
+        <div class="side-menu-links">
+            <a href="#" class="nav-link active-link" data-target="home-tab"><i class="fa-solid fa-house"></i> Trang chủ</a>
+            <a href="#" class="nav-link" data-target="list-tab"><i class="fa-solid fa-list-ul"></i> Danh sách</a>
+            <a href="#" class="nav-link" data-target="premium-tab"><i class="fa-solid fa-crown" style="color: #d97706;"></i> Gói Premium</a>
+            <a href="#" class="nav-link" data-target="wallet-tab"><i class="fa-solid fa-wallet"></i> Ví & Số dư</a>
+            <a href="#" class="nav-link" data-target="account-tab"><i class="fa-solid fa-user"></i> Tài khoản</a>
+            <a href="#" class="nav-link" data-target="contact-tab"><i class="fa-solid fa-headset"></i> Liên hệ</a>
+            <a href="#" class="nav-link" data-target="superadmin-tab" id="superAdminMenuLink" style="display: none; border-top: 1px dashed var(--glass-border); border-radius: 0; margin-top: 5px; color: #9c27b0; font-weight: 800;"><i class="fa-solid fa-shield-halved" style="color: #9c27b0;"></i> Quản Lí Cấp Cao</a>
+            <a href="#" class="nav-link" data-target="admin-tab" id="adminMenuLink" style="display: none; border-top: 1px dashed var(--glass-border); border-radius: 0; margin-top: 5px; color: #ff3b30;"><i class="fa-solid fa-screwdriver-wrench" style="color: #ff3b30;"></i> Quản Trị Viên</a>
+        </div>
+    </nav>
+
+    <div class="search-bar-container" id="searchBar">
+        <div class="search-wrapper">
+            <input type="text" id="searchInput" placeholder="Nhập tên truyện cần tìm...">
+            <button type="button" id="executeSearch">Tìm kiếm</button>
+        </div>
+    </div>
+
+    <div class="chat-bubble" title="Chat với Hỗ trợ viên" onclick="window.open('https://t.me/nhatpham27', '_blank')">
+        <i class="fa-solid fa-message"></i>
+    </div>
+
+    <main>
+        <div id="home-tab" class="tab-content active">
+            <div class="section-header">
+                <h2>Mới nhất</h2>
+            </div>
+            <div class="movie-grid-container" id="home-movie-grid"></div>
+
+            <!-- PHẦN CỘNG ĐỒNG VÀ LỜI NGỎ TỪ ADMIN -->
+            <div class="community-section">
+                <div class="section-header" style="margin-top: 40px; border-left-color: #0088cc;">
+                    <h2 style="color: #0088cc;"><i class="fa-brands fa-telegram"></i> Cộng Đồng Cáo Con</h2>
+                </div>
+                <div class="community-grid">
+                    <a href="https://t.me/caoconkenh" target="_blank" class="community-card">
+                        <img src="https://i.postimg.cc/rFyHT6Ww/13DC0908-1CAF-4321-A97A-5422724F538F.png" alt="Kênh Cập Nhật">
+                        <div class="community-info"><h3>Kênh Cập Nhật Audio</h3><p>Tham gia ngay để nhận thông báo phim mới!</p></div>
+                    </a>
+                    <a href="https://t.me/chatcaocon" target="_blank" class="community-card">
+                        <img src="https://i.postimg.cc/TY2sx8mY/00D0E812-4301-4883-A3BB-AB79377ABB56.png" alt="Group Chat">
+                        <div class="community-info"><h3>Group Chat Cáo Con</h3><p>Giao lưu, chém gió cùng hàng ngàn thành viên</p></div>
+                    </a>
+                </div>
+                <div class="admin-message-box">
+                    <h4><i class="fa-solid fa-heart" style="color: #ff3b30;"></i> Vài Lời Ngỏ Từ Admin</h4>
+                    <p>Chào mừng bạn đến với thiên đường giải trí <strong>caocon.online</strong> – nền tảng chuyên cung cấp phim truyện hoạt hình & truyện tranh Audio Vietsub Trung Quốc hàng đầu! Tại đây, chúng tôi mang đến một thế giới cảm xúc đa dạng: từ những bộ ngôn tình ngọt ngào, ngược tâm đau khổ, cho đến những câu chuyện tình cảm sâu sắc, dằn vặt hay nhất...</p>
+                    <p>Những danh sách phim bạn vừa lướt qua phía trên chính là các siêu phẩm được cộng đồng xem nhiều nhất và yêu thích nhất. Web tự hào sở hữu kho tàng khổng lồ chứa hầu hết tất cả các tác phẩm thuộc dòng phim ảnh & audio Trung Quốc. Bạn chỉ cần gõ tên vào thanh tìm kiếm là sẽ ra ngay! Đặc biệt, mọi bộ truyện trên web đều được cập nhật FULL định dạng từ Audio đến Video sắc nét.</p>
+                    <p>Tôi là <strong>Cáo Con</strong> — vừa là Admin, vừa là người bạn đồng hành cùng bạn trên hành trình săn lùng những bộ phim mới và hay nhất. Chúng tôi luôn nỗ lực cập nhật từng giờ để mang lại sự thoải mái tuyệt đối cho khán giả. Nếu bạn có bất kỳ thắc mắc nào, hoặc muốn đề xuất làm thêm bộ phim mới, đừng ngần ngại liên hệ cho Ad để được hỗ trợ nhiệt tình nhé!</p>
+                    <p>Chúc bạn luôn có những trải nghiệm xem phim vui vẻ và thoải mái nhất tại đây.<br>Chân thành cảm ơn những khán giả thân mến của tôi! ❤️</p>
+                </div>
+            </div>
+        </div>
+
+        <div id="list-tab" class="tab-content">
+            <div class="section-header">
+                <h2>Kho Truyện Đầy Đủ</h2>
+            </div>
+            <div class="movie-grid-container" id="list-movie-grid"></div>
+            <div class="pagination-container" id="list-pagination"></div>
+        </div>
+
+        <div id="premium-tab" class="tab-content">
+            <div class="section-header" style="border-left-color: #ffd700;">
+                <h2 style="color: #d97706;"><i class="fa-solid fa-crown"></i> Gói Premium</h2>
+            </div>
+        
+            <div id="premAuthWarning" style="text-align: center; padding: 40px 20px; background: #fff; border-radius: 24px; box-shadow: var(--shadow-soft); border: 1px solid var(--glass-border-light); max-width: 550px; margin: 0 auto; width: 100%;">
+                <i class="fa-solid fa-crown" style="font-size: 50px; color: #ffd700; margin-bottom: 20px;"></i>
+                <h3 style="margin-bottom: 10px; color: var(--text-main);">Vui lòng đăng nhập</h3>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">Đăng nhập để xem hạng thành viên và mua gói Premium.</p>
+                <button class="btn-primary" onclick="switchTab('account-tab')">Đăng Nhập Ngay</button>
+            </div>
+        
+            <div id="premMainContent" style="display: none; width: 100%; max-width: 900px; margin: 0 auto;">
+                
+                <div class="prem-status-box">
+                    <div class="prem-status-left">
+                        <div class="prem-level-label">Hạng Hiện Tại Của Bạn</div>
+                        <div class="prem-level-val" id="premUserLevel">Đồng</div>
+                    </div>
+                    <div class="prem-status-right">
+                        <p>Premium đến: <span id="premExpire" style="font-weight: bold; color: var(--accent-color);">Chưa đăng ký</span></p>
+                        <p>Tắt QC đến: <span id="premNoAds" style="font-weight: bold; color: var(--accent-color);">Chưa đăng ký</span></p>
+                    </div>
+                </div>
+        
+                <h3 style="margin: 25px 0 15px 0; text-align: center; font-size: 22px;">Bảng Giá Gói Dịch Vụ</h3>
+        
+                <div class="prem-packages-grid">
+                    <div class="prem-pkg-card" style="border-color: #a1a1aa;">
+                        <div class="pkg-name">Tắt Quảng Cáo</div>
+                        <div class="pkg-price">20.000đ <span>/ Tháng</span></div>
+                        <ul class="pkg-features">
+                            <li><i class="fa-solid fa-check"></i> Không còn quảng cáo</li>
+                            <li style="color: var(--text-muted); text-decoration: line-through;"><i class="fa-solid fa-xmark"></i> Nghe Phần 3 trở lên</li>
+                        </ul>
+                        <button class="btn-primary" style="width:100%; background: #52525b; box-shadow: none;" onclick="buyPremiumPackage('REMOVE_ADS')">Mua Gói Này</button>
+                    </div>
+        
+                    <div class="prem-pkg-card" style="border-color: #94a3b8;">
+                        <div class="pkg-badge">BẠC</div>
+                        <div class="pkg-name">Premium 1 Tháng</div>
+                        <div class="pkg-price">70.000đ <span>/ 30 ngày</span></div>
+                        <ul class="pkg-features">
+                            <li><i class="fa-solid fa-check"></i> Tắt quảng cáo 100%</li>
+                            <li><i class="fa-solid fa-check"></i> Mở khóa toàn bộ Phần (1-5)</li>
+                            <li><i class="fa-solid fa-check"></i> Huy hiệu Hạng Bạc</li>
+                        </ul>
+                        <button class="btn-primary" style="width:100%; background: linear-gradient(135deg, #cbd5e1, #94a3b8); color: #000;" onclick="buyPremiumPackage('1_MONTH')">Nâng Cấp Bạc</button>
+                    </div>
+        
+                    <div class="prem-pkg-card" style="border-color: #fbbf24; transform: scale(1.03); box-shadow: 0 15px 35px rgba(251, 191, 36, 0.2); z-index: 2;">
+                        <div class="pkg-badge" style="background: #fbbf24;">VÀNG - HOT</div>
+                        <div class="pkg-name">Premium 3 Tháng</div>
+                        <div class="pkg-price">180.000đ <span>/ 90 ngày</span></div>
+                        <ul class="pkg-features">
+                            <li><i class="fa-solid fa-check"></i> Tắt quảng cáo 100%</li>
+                            <li><i class="fa-solid fa-check"></i> Mở khóa toàn bộ Phần (1-5)</li>
+                            <li><i class="fa-solid fa-check"></i> Tiết kiệm 30.000đ</li>
+                            <li><i class="fa-solid fa-check"></i> Huy hiệu Hạng Vàng</li>
+                        </ul>
+                        <button class="btn-primary" style="width:100%; background: linear-gradient(135deg, #fde68a, #f59e0b); color: #000;" onclick="buyPremiumPackage('3_MONTHS')">Nâng Cấp Vàng</button>
+                    </div>
+        
+                    <div class="prem-pkg-card" style="border-color: #60a5fa;">
+                        <div class="pkg-badge" style="background: #3b82f6;">KIM CƯƠNG</div>
+                        <div class="pkg-name">Premium 6 Tháng</div>
+                        <div class="pkg-price">320.000đ <span>/ 180 ngày</span></div>
+                        <ul class="pkg-features">
+                            <li><i class="fa-solid fa-check"></i> Mở khóa mọi đặc quyền</li>
+                            <li><i class="fa-solid fa-check"></i> Tiết kiệm 100.000đ</li>
+                            <li><i class="fa-solid fa-check"></i> Huy hiệu Kim Cương</li>
+                        </ul>
+                        <button class="btn-primary" style="width:100%; background: linear-gradient(135deg, #93c5fd, #3b82f6);" onclick="buyPremiumPackage('6_MONTHS')">Nâng Cấp Kim Cương</button>
+                    </div>
+        
+                    <div class="prem-pkg-card" style="border-color: #f43f5e;">
+                        <div class="pkg-badge" style="background: #e11d48;">RUBI</div>
+                        <div class="pkg-name">Premium 1 Năm</div>
+                        <div class="pkg-price">550.000đ <span>/ 365 ngày</span></div>
+                        <ul class="pkg-features">
+                            <li><i class="fa-solid fa-check"></i> Thưởng thức không giới hạn</li>
+                            <li><i class="fa-solid fa-check"></i> Tiết kiệm 290.000đ cực lớn</li>
+                            <li><i class="fa-solid fa-check"></i> Huy hiệu Rubi tối thượng</li>
+                        </ul>
+                        <button class="btn-primary" style="width:100%; background: linear-gradient(135deg, #fda4af, #e11d48);" onclick="buyPremiumPackage('12_MONTHS')">Nâng Cấp Rubi</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div id="wallet-tab" class="tab-content">
+            <div class="section-header">
+                <h2>Quản Lý Ví</h2>
+            </div>
+            
+            <div id="walletAuthWarning" style="text-align: center; padding: 40px 20px; background: #fff; border-radius: 24px; box-shadow: var(--shadow-soft); border: 1px solid var(--glass-border-light); max-width: 550px; margin: 0 auto; width: 100%;">
+                <i class="fa-solid fa-wallet" style="font-size: 50px; color: var(--text-muted); margin-bottom: 20px;"></i>
+                <h3 style="margin-bottom: 10px; color: var(--text-main);">Vui lòng đăng nhập</h3>
+                <p style="color: var(--text-muted); margin-bottom: 20px;">Bạn cần đăng nhập tài khoản để xem số dư và nạp tiền vào ví.</p>
+                <button class="btn-primary" onclick="switchTab('account-tab')">Đăng Nhập Ngay</button>
+            </div>
+
+            <div id="walletMainContent" style="display: none; width: 100%; max-width: 550px; margin: 0 auto;">
+                <div class="wallet-container" style="margin-bottom: 0;">
+                    <div class="wallet-balance-card">
+                        <div class="balance-title">Số dư tài khoản</div>
+                        <div class="balance-amount" id="walletBalance">0 đ</div>
+                    </div>
+                    
+                    <div class="deposit-section">
+                        <h4 style="margin-bottom: 15px; font-size: 16px; color: var(--text-main);">Nạp Tiền Vào Ví Tự Động 24/7</h4>
+                        <div class="preset-amounts">
+                            <button class="preset-btn" onclick="setDepositAmount(50000)">50k</button>
+                            <button class="preset-btn" onclick="setDepositAmount(100000)">100k</button>
+                            <button class="preset-btn" onclick="setDepositAmount(200000)">200k</button>
+                            <button class="preset-btn" onclick="setDepositAmount(500000)">500k</button>
+                        </div>
+                        <input type="number" class="form-input" id="depositAmount" placeholder="Nhập số tiền cần nạp (Tối thiểu 10.000đ)" min="10000" step="1000" style="margin-bottom: 10px;">
+                        <button class="btn-primary" style="width: 100%;" onclick="generateQR()"><i class="fa-solid fa-qrcode"></i> Tạo QR Nạp Tiền</button>
+                    </div>
+
+                    <div class="transaction-history">
+                        <h4 style="margin-top: 25px; margin-bottom: 15px; font-size: 16px; border-bottom: 2px dashed var(--glass-border); padding-bottom: 10px;">Lịch Sử Giao Dịch Gần Đây</h4>
+                        <div id="transactionList" style="display: flex; flex-direction: column; gap: 12px;"></div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB QUẢN TRỊ VIÊN -->
+        <div id="admin-tab" class="tab-content">
+            <div class="section-header">
+                <h2>Quản Trị Phim (Admin)</h2>
+            </div>
+            
+            <div class="admin-container">
+                <div class="admin-form-box">
+                    <h3 style="margin-bottom: 15px; color: var(--text-main);">Thêm Phim / Truyện Mới</h3>
+                    <form id="addMovieForm" style="display: flex; flex-direction: column; gap: 10px;">
+                        <input type="hidden" id="editMovieId">
+                        <input type="text" class="form-input" id="movieTitle" placeholder="Tên phim (VD: Siêu Phẩm Cáo Con)" required>
+                        <input type="text" class="form-input" id="movieImage" placeholder="Link ảnh bìa (URL)" required>
+                        <input type="text" class="form-input" id="movieSS1" placeholder="Link Audio Phần 1 (SS1)" required>
+                        <input type="text" class="form-input" id="movieSS2" placeholder="Link Audio Phần 2 (SS2) hoặc để #">
+                        <input type="text" class="form-input" id="movieSS3" placeholder="Link Audio Phần 3 (SS3) hoặc để #">
+                        <input type="text" class="form-input" id="movieSS4" placeholder="Link Audio Phần 4 (SS4) hoặc để #">
+                        <input type="text" class="form-input" id="movieSS5" placeholder="Link Audio Phần 5 (SS5) hoặc để #">
+                        <div style="display: flex; gap: 10px;">
+                            <button type="button" class="btn-primary" id="cancelEditBtn" style="display: none; background: #8e8e93; flex: 1;" onclick="cancelEditMovie()">Hủy Sửa</button>
+                            <button type="submit" class="btn-primary" id="saveMovieBtn" style="flex: 2;"><i class="fa-solid fa-plus"></i> Thêm Phim Mới</button>
+                        </div>
+                    </form>
+                </div>
+
+                <div class="admin-list-box" style="margin-top: 30px;">
+                    <h3 style="margin-bottom: 15px; color: var(--text-main);">Danh Sách Phim Đã Đăng</h3>
+                    <div id="adminMovieList" style="display: flex; flex-direction: column; gap: 10px;"></div>
+                </div>
+            </div>
+        </div>
+
+        <!-- TAB QUẢN LÝ CẤP CAO (SUPER ADMIN) BẢO MẬT -->
+        <div id="superadmin-tab" class="tab-content">
+            <div class="section-header" style="border-left-color: #9c27b0;">
+                <h2 style="color: #9c27b0;"><i class="fa-solid fa-shield-halved"></i> Quản Lý Cấp Cao</h2>
+            </div>
+            
+            <div class="admin-container" style="max-width: 1000px;">
+                <!-- BỘ LỌC THỜI GIAN -->
+                <div class="sa-filter-container">
+                    <div style="display: flex; align-items: center; gap: 10px;">
+                        <i class="fa-solid fa-filter" style="color: var(--text-muted);"></i>
+                        <span style="font-weight: 700; color: var(--text-main);">Lọc theo:</span>
+                    </div>
+                    <select id="saTimeFilter" class="form-input sa-time-select" onchange="handleSaTimeFilterChange()">
+                        <option value="all">Tất cả thời gian</option>
+                        <option value="today">Hôm nay</option>
+                        <option value="yesterday">Hôm qua</option>
+                        <option value="7days">7 ngày qua</option>
+                        <option value="30days">30 ngày qua</option>
+                        <option value="60days">60 ngày qua</option>
+                        <option value="1year">1 năm qua</option>
+                        <option value="custom">Tùy chỉnh ngày...</option>
+                    </select>
+                    <div id="saCustomDateRange" class="sa-custom-dates">
+                        <input type="date" id="saStartDate" class="form-input">
+                        <span style="font-weight: bold; color: var(--text-muted);">đến</span>
+                        <input type="date" id="saEndDate" class="form-input">
+                        <button class="btn-primary" style="padding: 10px 20px;" onclick="loadSuperAdminData()">Áp dụng</button>
+                    </div>
+                </div>
+
+                <div class="sa-stats-grid">
+                    <div class="sa-stat-card">
+                        <i class="fa-solid fa-users sa-icon"></i>
+                        <div class="sa-stat-info"><span class="sa-label">Tổng Tài Khoản</span><span class="sa-val" id="saTotalUsers">0</span></div>
+                    </div>
+                    <div class="sa-stat-card">
+                        <i class="fa-solid fa-sack-dollar sa-icon" style="color: #34c759;"></i>
+                        <div class="sa-stat-info"><span class="sa-label">Tổng Tiền Đã Nạp</span><span class="sa-val" id="saTotalBalance" style="color: #34c759;">0 đ</span></div>
+                    </div>
+                    <div class="sa-stat-card">
+                        <i class="fa-solid fa-headset sa-icon" style="color: #ff9500;"></i>
+                        <div class="sa-stat-info"><span class="sa-label">Hỗ Trợ Chờ Xử Lý</span><span class="sa-val" id="saPendingSupport" style="color: #ff9500;">0</span></div>
+                    </div>
+                </div>
+
+                <!-- BỐ CỤC TAB CHUYÊN NGHIỆP -->
+                <div class="sa-tab-container">
+                    <div class="sa-tab-nav">
+                        <button class="sa-tab-btn active" data-target="sa-account-management"><i class="fa-solid fa-users-gear"></i> Quản Lý Tài Khoản</button>
+                        <button class="sa-tab-btn" data-target="sa-bank-history"><i class="fa-solid fa-building-columns"></i> Lịch Sử Ngân Hàng</button>
+                        <button class="sa-tab-btn" data-target="sa-support-inbox"><i class="fa-solid fa-envelope-open-text"></i> Hộp Thư Hỗ Trợ</button>
+                        <button class="sa-tab-btn" data-target="sa-grant-account"><i class="fa-solid fa-gift"></i> Cấp Tài Khoản</button>
+                        <button class="sa-tab-btn" data-target="sa-top-deposits"><i class="fa-solid fa-ranking-star"></i> Tổng Tiền Nạp</button>
+                        <button class="sa-tab-btn" data-target="sa-send-notification"><i class="fa-solid fa-paper-plane"></i> Gửi Thông Báo</button>
+                    </div>
+
+                    <div id="sa-account-management" class="sa-tab-content active">
+                        <div class="sa-list-box">
+                            <div style="display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 15px; margin-bottom: 20px;">
+                                <h3 style="color: var(--text-main); font-size: 18px; margin: 0;">Danh Sách Người Dùng</h3>
+                                <div style="display: flex; gap: 10px; flex-wrap: wrap; flex: 1; justify-content: flex-end;">
+                                    <select id="saUserLevelFilter" class="form-input sa-filter-input" onchange="filterSuperAdminUsers()">
+                                        <option value="ALL">Tất cả hạng</option>
+                                        <option value="NORMAL">Tài khoản Thường</option>
+                                        <option value="VIP">Tài khoản VIP / Premium</option>
+                                    </select>
+                                    <input type="text" id="saUserSearch" class="form-input sa-filter-input" placeholder="Tìm tên, SĐT, Email..." oninput="filterSuperAdminUsers()">
+                                </div>
+                            </div>
+                            <div class="sa-table-wrapper">
+                                <table class="sa-table">
+                                    <thead><tr><th>Thời Gian</th><th>Tài Khoản</th><th>Liên Hệ</th><th>Cấp Độ</th><th>Số Dư</th><th style="min-width: 150px;">Hành Động</th></tr></thead>
+                                    <tbody id="superAdminUserList"></tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="sa-bank-history" class="sa-tab-content">
+                        <div class="sa-list-box">
+                            <div class="sa-sub-tab-nav">
+                                <button class="sa-sub-tab-btn active" data-sub="bank-deposit">Dòng Tiền Nạp</button>
+                                <button class="sa-sub-tab-btn" data-sub="bank-vip">Dòng Tiền Mua VIP</button>
+                            </div>
+                            <div id="bank-deposit" class="sa-sub-tab-content active">
+                                <div class="sa-table-wrapper"><table class="sa-table">
+                                    <thead><tr><th>Thời Gian</th><th>Mã Giao Dịch</th><th>Số Tiền</th><th>Nội Dung</th><th>Tài Khoản Nạp</th></tr></thead>
+                                    <tbody id="saDepositList"></tbody>
+                                </table></div>
+                            </div>
+                            <div id="bank-vip" class="sa-sub-tab-content">
+                                <div class="sa-table-wrapper"><table class="sa-table">
+                                    <thead><tr><th>Thời Gian</th><th>Mã Tham Chiếu</th><th>Số Tiền Tiêu</th><th>Gói Mua</th><th>Tài Khoản</th></tr></thead>
+                                    <tbody id="saVipList"></tbody>
+                                </table></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="sa-support-inbox" class="sa-tab-content">
+                        <div class="sa-list-box">
+                            <div class="sa-sub-tab-nav">
+                                <button class="sa-sub-tab-btn active" data-sub="support-pending">Chờ Xử Lý <span class="sa-count-badge" id="saSupportCountBadge">0</span></button>
+                                <button class="sa-sub-tab-btn" data-sub="support-resolved">Đã Xử Lý</button>
+                            </div>
+                            <div id="support-pending" class="sa-sub-tab-content active">
+                                <div class="sa-table-wrapper"><table class="sa-table">
+                                    <thead><tr><th>Tài Khoản</th><th>SĐT / Email</th><th>Thời Gian</th><th>Trạng Thái</th><th>Hành Động</th></tr></thead>
+                                    <tbody id="saSupportPendingList"></tbody>
+                                </table></div>
+                            </div>
+                            <div id="support-resolved" class="sa-sub-tab-content">
+                                <div class="sa-table-wrapper"><table class="sa-table">
+                                    <thead><tr><th>Tài Khoản</th><th>Thời Gian Hỏi</th><th>Thời Gian Trả Lời</th><th>Trạng Thái</th><th>Hành Động</th></tr></thead>
+                                    <tbody id="saSupportResolvedList"></tbody>
+                                </table></div>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div id="sa-grant-account" class="sa-tab-content">
+                        <div class="sa-list-box">
+                            <h3 style="color: var(--text-main); font-size: 18px; margin-bottom: 20px;"><i class="fa-solid fa-gift"></i> Cấp Phát Gói Dịch Vụ</h3>
+                            <div class="sa-table-wrapper"><table class="sa-table">
+                                <thead><tr><th>Tài Khoản</th><th>Gói Dịch Vụ (Cấp Độ)</th><th>Thời Hạn Còn Lại</th><th>Ngày Hết Hạn</th><th>Hành Động</th></tr></thead>
+                                <tbody id="saGrantAccountList"></tbody>
+                            </table></div>
+                        </div>
+                    </div>
+
+                    <div id="sa-top-deposits" class="sa-tab-content">
+                        <div class="sa-list-box">
+                            <h3 style="color: var(--text-main); font-size: 18px; margin-bottom: 20px;"><i class="fa-solid fa-ranking-star"></i> Bảng Xếp Hạng Top Nạp</h3>
+                            <div class="sa-table-wrapper"><table class="sa-table">
+                                <thead><tr><th>Top</th><th>Tài Khoản</th><th>SĐT / Email</th><th>Tổng Tiền Đã Nạp</th><th>Số Dư Hiện Tại</th></tr></thead>
+                                <tbody id="saTopDepositList"></tbody>
+                            </table></div>
+                        </div>
+                    </div>
+
+                    <div id="sa-send-notification" class="sa-tab-content">
+                        <div class="sa-form-box">
+                            <h3 style="margin-bottom: 15px; color: var(--text-main); font-size: 18px;"><i class="fa-solid fa-paper-plane"></i> Soạn Thông Báo Mới</h3>
+                            <form id="sendNotiForm" style="display: flex; flex-direction: column; gap: 10px;">
+                                <input type="text" class="form-input" id="notiTarget" placeholder="Username (Bỏ trống = Gửi tất cả)">
+                                <input type="text" class="form-input" id="notiTitle" placeholder="Tiêu đề thông báo *" required>
+                                <textarea class="form-input form-textarea" id="notiMessage" placeholder="Nội dung chi tiết..." required style="min-height: 120px;"></textarea>
+                                <button type="submit" class="btn-primary" style="background: #9c27b0; box-shadow: none;">Gửi Thông Báo</button>
+                            </form>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        
+        <!-- MODAL THAO TÁC CỦA SUPER ADMIN -->
+        <div class="modal-overlay" id="saBalanceModal">
+            <div class="modal-box">
+                <h3 id="saBalanceTitle">Cộng / Trừ Tiền</h3>
+                <input type="hidden" id="saBalanceUserId">
+                <input type="hidden" id="saBalanceAction">
+                <p id="saBalanceDesc" style="margin-bottom: 15px; font-size: 15px;"></p>
+                <input type="number" class="form-input" id="saBalanceAmount" placeholder="Nhập số tiền (VNĐ)..." required style="margin-bottom: 15px; font-size: 18px; font-weight: bold; text-align: center;">
+                <input type="text" class="form-input" id="saBalanceReason" placeholder="Lý do trừ tiền (Gửi thông báo tới người dùng)" style="margin-bottom: 15px; display: none;">
+                <div class="modal-actions">
+                    <button class="btn-primary" style="background: #8e8e93; flex: 1;" onclick="document.getElementById('saBalanceModal').classList.remove('active')">Hủy</button>
+                    <button class="btn-primary" id="saBalanceSubmitBtn" style="flex: 1;" onclick="submitSaBalance()">Xác nhận</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="saEditUserModal">
+            <div class="modal-box sa-edit-modal-box">
+                <h3 style="text-align: center; margin-bottom: 20px;">Sửa Thông Tin Tài Khoản</h3>
+                <input type="hidden" id="saEditUserId">
+                <div class="sa-edit-grid">
+                    <div><label for="saEditUsername">Tên đăng nhập</label><input type="text" class="form-input" id="saEditUsername" required></div>
+                    <div><label for="saEditLevel">Cấp độ</label><select class="form-input" id="saEditLevel"><option value="Đồng">Đồng</option><option value="Bạc">Bạc</option><option value="Vàng">Vàng</option><option value="Kim Cương">Kim Cương</option><option value="Rubi">Rubi</option><option value="Admin">Admin</option><option value="SuperAdmin">SuperAdmin</option></select></div>
+                    <div><label for="saEditPhone">Số điện thoại</label><input type="text" class="form-input" id="saEditPhone" required></div>
+                    <div><label for="saEditEmail">Email</label><input type="email" class="form-input" id="saEditEmail" required></div>
+                    <div><label for="saEditNewPassword">Mật khẩu mới (Bỏ trống nếu giữ nguyên)</label><input type="password" class="form-input" id="saEditNewPassword" placeholder="Đổi mật khẩu"></div>
+                    <div><label for="saEditPremiumDays">Cộng thêm ngày Premium (Gia hạn)</label><input type="number" class="form-input" id="saEditPremiumDays" placeholder="Số ngày..."></div>
+                </div>
+                <div class="modal-actions">
+                    <button class="btn-primary" style="background: #8e8e93; flex: 1;" onclick="document.getElementById('saEditUserModal').classList.remove('active')">Hủy</button>
+                    <button class="btn-primary" style="background: #007aff; flex: 1;" onclick="submitSaEditUser()">Lưu Thay Đổi</button>
+                </div>
+            </div>
+        </div>
+
+        <div class="modal-overlay" id="saSupportModal">
+            <div class="modal-box sa-edit-modal-box">
+                <h3 id="saSupportModalTitle">Xử Lý Yêu Cầu Hỗ Trợ</h3>
+                <input type="hidden" id="saSupportId">
+                <div style="background: var(--bg-main); padding: 15px; border-radius: 12px; margin-bottom: 15px; font-size: 14px; text-align: left;">
+                    <p><strong>Từ:</strong> <span id="saSupportName"></span></p>
+                    <p><strong>Liên hệ:</strong> <span id="saSupportContact"></span></p>
+                    <div style="margin-top: 10px; padding-top: 10px; border-top: 1px dashed var(--glass-border);">
+                        <strong>Nội dung gửi:</strong> <br>
+                        <span id="saSupportDesc" style="color: #007aff; line-height: 1.5;"></span>
+                    </div>
+                </div>
+                
+                <div id="saSupportReplySection">
+                    <label style="font-size: 12px; font-weight: 600; color: var(--text-muted); display: block; margin-bottom: 5px; text-align: left;">Nội dung trả lời (Sẽ gửi vào chuông thông báo):</label>
+                    <textarea class="form-input form-textarea" id="saSupportReplyMsg" placeholder="Nhập câu trả lời..." required style="min-height: 80px; margin-bottom: 0;"></textarea>
+                </div>
+
+                <div id="saSupportResolvedSection" style="display: none; background: #dcfce7; padding: 15px; border-radius: 12px; text-align: left; font-size: 14px; border: 1px solid #34c759;">
+                    <p><strong style="color: #34c759;">Admin đã trả lời:</strong> <br><span id="saSupportResolvedMsg"></span></p>
+                </div>
+
+                <div class="modal-actions">
+                    <button class="btn-primary" style="background: #8e8e93; flex: 1;" onclick="document.getElementById('saSupportModal').classList.remove('active')">Đóng</button>
+                    <button class="btn-primary" id="saSupportSubmitBtn" style="background: #007aff; flex: 1;" onclick="submitSaSupportReply()">Gửi Trả Lời</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="account-tab" class="tab-content">
+            <div class="section-header">
+                <h2>Trung Tâm Tài Khoản</h2>
+            </div>
+            
+            <!-- PHẦN CHƯA ĐĂNG NHẬP (FORM) -->
+            <div class="auth-container" id="authSection">
+                <div class="auth-toggle">
+                    <button class="auth-toggle-btn active" id="btnShowLogin" onclick="toggleAuthView('login')">Đăng Nhập</button>
+                    <button class="auth-toggle-btn" id="btnShowRegister" onclick="toggleAuthView('register')">Đăng Ký</button>
+                </div>
+
+                <!-- Form Đăng Nhập -->
+                <form class="auth-form active" id="loginForm">
+                    <div class="form-title">Chào mừng trở lại</div>
+                    <input type="text" class="form-input" id="loginIdentifier" placeholder="Tên tài khoản, Email hoặc Số điện thoại" required>
+                    <input type="password" class="form-input" id="loginPassword" placeholder="Mật khẩu" required>
+                    <button type="submit" class="btn-primary auth-submit-btn">Đăng Nhập</button>
+                    <p class="auth-hint"><a href="#" onclick="toggleAuthView('forgot')" style="color: var(--accent-color); font-weight: 600; text-decoration: none;">Quên mật khẩu?</a></p>
+                </form>
+
+                <!-- Luồng Quên Mật Khẩu (3 Bước) -->
+                <form class="auth-form" id="forgotEmailForm">
+                    <div class="form-title">Quên Mật Khẩu</div>
+                    <p class="auth-hint" style="margin-bottom: 10px;">Vui lòng nhập Email đã đăng ký để nhận mã xác nhận OTP.</p>
+                    <input type="email" class="form-input" id="forgotEmailInput" placeholder="Email liên kết *" required>
+                    <button type="submit" class="btn-primary auth-submit-btn">Nhận Mã OTP</button>
+                    <p class="auth-hint"><a href="#" onclick="toggleAuthView('login')" style="color: var(--text-main); text-decoration: none;"><i class="fa-solid fa-arrow-left"></i> Quay lại Đăng Nhập</a></p>
+                </form>
+
+                <form class="auth-form" id="forgotOtpForm">
+                    <div class="form-title">Xác Nhận OTP</div>
+                    <p class="auth-hint" style="margin-bottom: 10px;">Mã OTP 6 số đã được gửi đến <span id="displayForgotEmail" style="color:var(--text-main);font-weight:bold;"></span></p>
+                    <input type="text" class="form-input" id="forgotOtpInput" placeholder="Nhập mã OTP (6 số) *" maxlength="6" required style="text-align: center; font-size: 20px; letter-spacing: 5px; font-weight: bold;">
+                    <button type="submit" class="btn-primary auth-submit-btn">Tiếp Tục</button>
+                </form>
+
+                <form class="auth-form" id="forgotResetForm">
+                    <div class="form-title">Tạo Mật Khẩu Mới</div>
+                    <input type="password" class="form-input" id="forgotNewPass" placeholder="Mật khẩu mới *" required>
+                    <input type="password" class="form-input" id="forgotConfirmPass" placeholder="Xác nhận mật khẩu mới *" required>
+                    <button type="submit" class="btn-primary auth-submit-btn">Lưu Mật Khẩu</button>
+                </form>
+
+                <!-- Form Đăng Ký -->
+                <form class="auth-form" id="registerForm">
+                    <div class="form-title">Tạo tài khoản mới</div>
+                    
+                    <!-- Bước 1: Thông tin cơ bản -->
+                    <div id="regStep1">
+                        <input type="tel" class="form-input" id="regPhone" placeholder="Số điện thoại *" required>
+                        <input type="email" class="form-input" id="regEmail" placeholder="Email *" required>
+                        <input type="password" class="form-input" id="regPassword" placeholder="Mật khẩu *" required>
+                        <input type="password" class="form-input" id="regConfirmPassword" placeholder="Xác nhận mật khẩu lần nữa *" required>
+                        <button type="button" class="btn-primary auth-submit-btn" onclick="nextRegisterStep()">Tiếp Tục</button>
+                    </div>
+                    
+                    <!-- Bước 2: Đặt tên tài khoản -->
+                    <div id="regStep2" style="display: none;">
+                        <p class="auth-hint" style="margin-bottom:15px; color:var(--text-main);">Bước cuối: Hãy tạo một Tên tài khoản độc nhất của riêng bạn.</p>
+                        <input type="text" class="form-input" id="regUsername" placeholder="Tên tài khoản (Username) *">
+                        <div style="display: flex; gap: 10px;">
+                            <button type="button" class="btn-primary auth-submit-btn" style="background: #8e8e93;" onclick="prevRegisterStep()">Quay Lại</button>
+                            <button type="submit" class="btn-primary auth-submit-btn">Hoàn Tất</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+
+            <!-- PHẦN ĐÃ ĐĂNG NHẬP (PROFILE) -->
+            <div class="profile-container" id="profileSection" style="display: none;">
+                <div class="profile-header">
+                    <img src="https://i.postimg.cc/25nNvXsX/BFA37734-56C0-4950-A46C-3952E9F1A499.png" alt="Avatar" class="profile-avatar">
+                    <h3 class="profile-name" id="profileUsername">Tên Người Dùng</h3>
+                    <span class="profile-level" id="profileLevel">Cấp độ: Thành viên</span>
+                </div>
+                <div class="profile-info-grid">
+                    <div class="info-card">
+                        <i class="fa-solid fa-phone"></i>
+                        <div class="info-text"><span class="label">Số điện thoại</span><span class="val" id="profilePhone">0987...</span></div>
+                    </div>
+                    <div class="info-card">
+                        <i class="fa-solid fa-envelope"></i>
+                        <div class="info-text"><span class="label">Email liên kết</span><span class="val" id="profileEmail">email@...</span></div>
+                    </div>
+                </div>
+                
+                <div class="profile-actions" style="display: flex; flex-direction: column; gap: 15px;">
+                    <button class="btn-primary" style="width: 100%;" onclick="toggleChangePassView()"><i class="fa-solid fa-key"></i> Đổi Mật Khẩu</button>
+                    
+                    <form id="changePassForm" class="auth-form" style="display: none; background: var(--bg-main); padding: 20px; border-radius: 20px; border: 1px solid var(--glass-border);">
+                        <input type="password" class="form-input" id="cpOldPass" placeholder="Mật khẩu hiện tại *" style="background:#fff;" required>
+                        <input type="password" class="form-input" id="cpNewPass" placeholder="Mật khẩu mới *" style="background:#fff;" required>
+                        <input type="password" class="form-input" id="cpConfirmPass" placeholder="Xác nhận mật khẩu mới *" style="background:#fff;" required>
+                        <div style="display: flex; gap: 10px;">
+                            <button type="button" class="btn-primary auth-submit-btn" style="background: #8e8e93;" onclick="toggleChangePassView()">Hủy</button>
+                            <button type="submit" class="btn-primary auth-submit-btn">Cập Nhật</button>
+                        </div>
+                    </form>
+                    <button class="btn-primary logout-btn" onclick="logoutUser()"><i class="fa-solid fa-arrow-right-from-bracket"></i> Đăng Xuất</button>
+                </div>
+            </div>
+        </div>
+
+        <div id="contact-tab" class="tab-content">
+            <div class="contact-page-title">
+                <i class="fa-solid fa-headset"></i> Trung Tâm Trợ Giúp
+            </div>
+            <form id="supportContactForm" class="contact-container" onsubmit="submitContactForm(event)">
+                <div class="form-title"><i class="fa-solid fa-paper-plane"></i> Gửi yêu cầu hỗ trợ</div>
+                <input type="text" class="form-input" id="contactName" placeholder="Họ và tên hoặc Username *" required>
+                <input type="text" class="form-input" id="contactInfo" placeholder="Email / Số điện thoại liên hệ *" required>
+                <button type="button" class="upload-btn"><i class="fa-solid fa-cloud-arrow-up"></i> Tải lên ảnh minh họa</button>
+                <textarea class="form-input form-textarea" id="contactDesc" placeholder="Mô tả chi tiết vấn đề..." required></textarea>
+                <button type="submit" class="btn-primary submit-btn"><i class="fa-solid fa-paper-plane"></i> GỬI TIN NHẮN</button>
+                <div class="divider"></div>
+                <div class="contact-cards">
+                    <a href="https://t.me/nhatpham27" target="_blank" class="contact-card card-tele">
+                        <i class="fa-brands fa-telegram" style="font-size: 32px;"></i> Chat Qua Telegram
+                    </a>
+                    <a href="https://zalo.me/84961547842" target="_blank" class="contact-card card-zalo">
+                        <i class="fa-solid fa-comment-sms" style="font-size: 32px;"></i> Chat Qua Zalo
+                    </a>
+                </div>
+            </div>
+        </div>
+    </main>
+
+    <footer>
+        <div class="footer-content">
+            <div class="footer-section about">
+                <h3>CAOCON.ONLINE</h3>
+                <p>Xem Phim Cáo Con chất lượng cao, hỗ trợ phụ đề tiếng Việt, thuyết minh và lồng tiếng. Kho phim đa dạng, giao diện hiện đại mang đậm phong cách chuẩn iOS.</p>
+            </div>
+            <div class="footer-links-wrapper">
+                <div class="footer-section links">
+                    <h3>TRỢ GIÚP</h3>
+                    <ul>
+                        <li><a href="#">Điều khoản chung</a></li>
+                        <li><a href="#">Chính sách riêng tư</a></li>
+                        <li><a href="#">Sitemap</a></li>
+                    </ul>
+                </div>
+                <div class="footer-section links">
+                    <h3>PHIMNET</h3>
+                    <ul>
+                        <li><a href="#">Trang chủ</a></li>
+                        <li><a href="#">Giới thiệu</a></li>
+                        <li><a href="#">Liên hệ</a></li>
+                    </ul>
+                </div>
+            </div>
+        </div>
+        <div class="footer-bottom">
+            <p>© 2026 CaoCon.online - Nền Tảng Xem Phim Đỉnh Cao. All rights reserved.</p>
+        </div>
+    </footer>
+
+    <script src="script.js"></script>
+    <script>
+        // Đăng ký Service Worker cho PWA
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                navigator.serviceWorker.register('sw.js').then(registration => {
+                    console.log('✅ PWA ServiceWorker đã đăng ký thành công!');
+                }).catch(err => {
+                    console.log('❌ Lỗi đăng ký ServiceWorker: ', err);
+                });
+            });
+        }
+    </script>
+</body>
+</html>

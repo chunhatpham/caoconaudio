@@ -1,0 +1,21 @@
+{
+  "name": "caocon",
+  "short_name": "caocon",
+  "start_url": ".",
+  "display": "standalone",
+  "background_color": "#f5f5f9",
+  "theme_color": "#ff5e00",
+  "description": "Thiên đường giải trí Audio",
+  "icons": [
+    {
+      "src": "https://i.postimg.cc/25nNvXsX/BFA37734-56C0-4950-A46C-3952E9F1A499.png",
+      "sizes": "192x192",
+      "type": "image/png"
+    },
+    {
+      "src": "https://i.postimg.cc/25nNvXsX/BFA37734-56C0-4950-A46C-3952E9F1A499.png",
+      "sizes": "512x512",
+      "type": "image/png"
+    }
+  ]
+}
