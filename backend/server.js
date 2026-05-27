@@ -528,7 +528,14 @@ app.post('/api/deposit/update-status', async (req, res) => {
 app.post('/api/webhook/sepay', async (req, res) => {
     try {
         console.log("📥 [SePay Webhook] Nhận tín hiệu chuyển khoản:", req.body);
-        const data = req.body;
+        let data = req.body;
+        
+        // Đề phòng hệ thống SePay gửi cấu trúc bọc trong mảng data (Array)
+        if (data.data && Array.isArray(data.data) && data.data.length > 0) {
+            data = data.data[0];
+        } else if (Array.isArray(data) && data.length > 0) {
+            data = data[0];
+        }
         
         // Hỗ trợ lấy dữ liệu theo mọi chuẩn API của SePay
         const amount = parseInt(data.transferAmount || data.amountIn || data.amount);
