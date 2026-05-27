@@ -53,7 +53,7 @@ async function submitContactForm(e) {
     
     showLoader();
     try {
-        const res = await fetch('http://localhost:3001/api/contact', {
+        const res = await fetch('https://caoconaudio.onrender.com/api/contact', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId, name, contact, description })
         });
@@ -215,7 +215,7 @@ function playGlobalAudio(movie, seasonName, link) {
         playIcon.className = "fa-solid fa-pause";
         isPlaying = true;
         // Gọi API tăng view ngầm
-        fetch(`http://localhost:3001/api/movies/${movie._id}/view`, { method: 'POST' });
+        fetch(`https://caoconaudio.onrender.com/api/movies/${movie._id}/view`, { method: 'POST' });
     }).catch(e => console.log('Chờ Audio Load...'));
 }
 
@@ -231,7 +231,7 @@ function closeGlobalPlayer() {
 
 async function handleLikeMovie(id) {
     try {
-        const res = await fetch(`http://localhost:3001/api/movies/${id}/like`, { method: 'POST' });
+        const res = await fetch(`https://caoconaudio.onrender.com/api/movies/${id}/like`, { method: 'POST' });
         const data = await res.json();
         if(res.ok && data.success) {
             detailLikes.innerText = new Intl.NumberFormat('vi-VN').format(data.likes);
@@ -604,7 +604,7 @@ document.getElementById('registerForm').addEventListener('submit', async (e) => 
 
     showLoader();
     try {
-        const res = await fetch('http://localhost:3001/api/register', {
+        const res = await fetch('https://caoconaudio.onrender.com/api/register', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ phone, email, password, username })
         });
@@ -630,7 +630,7 @@ document.getElementById('loginForm').addEventListener('submit', async (e) => {
 
     showLoader();
     try {
-        const res = await fetch('http://localhost:3001/api/login', {
+        const res = await fetch('https://caoconaudio.onrender.com/api/login', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ loginIdentifier, password })
         });
@@ -676,7 +676,7 @@ async function generateQR() {
     showLoader();
     try {
         // Gọi API tạo đơn
-        const res = await fetch('http://localhost:3001/api/deposit/init', {
+        const res = await fetch('https://caoconaudio.onrender.com/api/deposit/init', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId: user.id, amount })
         });
@@ -706,7 +706,7 @@ function startDepositTracking(amount) {
     // Kiểm tra trạng thái mỗi 3 giây
     pollingInterval = setInterval(async () => {
         try {
-            const res = await fetch('http://localhost:3001/api/deposit/check', {
+            const res = await fetch('https://caoconaudio.onrender.com/api/deposit/check', {
                 method: 'POST', headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({ txId: currentTxId })
             });
@@ -728,7 +728,7 @@ function startDepositTracking(amount) {
 async function closeQR(status = 'CANCELLED') {
     clearInterval(pollingInterval);
     
-    if(currentTxId) { fetch('http://localhost:3001/api/deposit/update-status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ txId: currentTxId, status }) }); }
+    if(currentTxId) { fetch('https://caoconaudio.onrender.com/api/deposit/update-status', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ txId: currentTxId, status }) }); }
     
     document.getElementById('qrPaymentModal').classList.remove('active');
     setTimeout(() => loadUserProfile(), 500); // Làm mới lịch sử
@@ -742,7 +742,7 @@ async function loadUserProfile() {
     const localUser = JSON.parse(userStr);
     
     try {
-        const res = await fetch('http://localhost:3001/api/profile', {
+        const res = await fetch('https://caoconaudio.onrender.com/api/profile', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId: localUser.id })
         });
@@ -932,7 +932,7 @@ async function executePremiumPurchase() {
     
     showLoader();
     try {
-        const res = await fetch('http://localhost:3001/api/premium/buy', {
+        const res = await fetch('https://caoconaudio.onrender.com/api/premium/buy', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId: user.id, packageType: type })
         });
@@ -968,7 +968,7 @@ document.getElementById('forgotEmailForm').addEventListener('submit', async (e) 
     
     showLoader();
     try {
-        const res = await fetch('http://localhost:3001/api/forgot-password', {
+        const res = await fetch('https://caoconaudio.onrender.com/api/forgot-password', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: resetTargetEmail })
         });
@@ -1001,7 +1001,7 @@ document.getElementById('forgotResetForm').addEventListener('submit', async (e) 
 
     showLoader();
     try {
-        const res = await fetch('http://localhost:3001/api/reset-password', {
+        const res = await fetch('https://caoconaudio.onrender.com/api/reset-password', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ email: resetTargetEmail, otp, newPassword: newPass })
         });
@@ -1034,7 +1034,7 @@ document.getElementById('changePassForm').addEventListener('submit', async (e) =
 
     showLoader();
     try {
-        const res = await fetch('http://localhost:3001/api/change-password', {
+        const res = await fetch('https://caoconaudio.onrender.com/api/change-password', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ userId: user.id, oldPassword, newPassword })
         });
@@ -1059,9 +1059,9 @@ document.getElementById('addMovieForm').addEventListener('submit', async (e) => 
     
     showLoader();
     try {
-        let url = 'http://localhost:3001/api/movies';
+        let url = 'https://caoconaudio.onrender.com/api/movies';
         let method = 'POST';
-        if (id) { url = `http://localhost:3001/api/movies/${id}`; method = 'PUT'; }
+        if (id) { url = `https://caoconaudio.onrender.com/api/movies/${id}`; method = 'PUT'; }
         
         const res = await fetch(url, {
             method, headers: { 'Content-Type': 'application/json' },
@@ -1125,7 +1125,7 @@ async function deleteMovie(id) {
     if(!confirm('Bạn có chắc chắn muốn xóa phim này vĩnh viễn không?')) return;
     showLoader();
     try {
-        const res = await fetch(`http://localhost:3001/api/movies/${id}`, { method: 'DELETE' });
+        const res = await fetch(`https://caoconaudio.onrender.com/api/movies/${id}`, { method: 'DELETE' });
         hideLoader();
         if(res.ok) {
             showModal('Thành Công', 'Đã xóa phim', true);
@@ -1183,7 +1183,7 @@ async function loadSuperAdminData() {
 
     showLoader();
     try {
-        const res = await fetch('http://localhost:3001/api/superadmin/users', {
+        const res = await fetch('https://caoconaudio.onrender.com/api/superadmin/users', {
             method: 'POST', headers: { 'Content-Type': 'application/json' },
             body: JSON.stringify({ adminId: user.id, startDate, endDate })
         });
@@ -1287,7 +1287,7 @@ async function submitSaBalance() {
     
     showLoader();
     try {
-        const res = await fetch(`http://localhost:3001/api/superadmin/users/${id}/balance`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminId: admin.id, action, amount, reason }) });
+        const res = await fetch(`https://caoconaudio.onrender.com/api/superadmin/users/${id}/balance`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminId: admin.id, action, amount, reason }) });
         const data = await res.json(); hideLoader();
         if(res.ok) { document.getElementById('saBalanceModal').classList.remove('active'); showModal('Thành công', data.message, true); loadSuperAdminData(); } 
         else showModal('Lỗi', data.message);
@@ -1310,7 +1310,7 @@ async function submitSaEditUser() {
     
     showLoader();
     try {
-        const res = await fetch(`http://localhost:3001/api/superadmin/users/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminId: admin.id, username, phone, email, level, newPassword, premiumDays }) });
+        const res = await fetch(`https://caoconaudio.onrender.com/api/superadmin/users/${id}`, { method: 'PUT', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminId: admin.id, username, phone, email, level, newPassword, premiumDays }) });
         const data = await res.json(); hideLoader();
         if(res.ok) { document.getElementById('saEditUserModal').classList.remove('active'); showModal('Thành công', data.message, true); loadSuperAdminData(); } 
         else showModal('Lỗi', data.message);
@@ -1322,7 +1322,7 @@ async function saDeleteUser(id, username) {
     const admin = JSON.parse(localStorage.getItem('currentUser') || '{}');
     showLoader();
     try {
-        const res = await fetch(`http://localhost:3001/api/superadmin/users/${id}`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminId: admin.id }) });
+        const res = await fetch(`https://caoconaudio.onrender.com/api/superadmin/users/${id}`, { method: 'DELETE', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminId: admin.id }) });
         const data = await res.json(); hideLoader();
         if(res.ok) { showModal('Thành công', data.message, true); loadSuperAdminData(); } else showModal('Lỗi', data.message);
     } catch(e) { hideLoader(); showModal('Lỗi', 'Mất kết nối máy chủ'); }
@@ -1462,7 +1462,7 @@ async function submitSaSupportReply() {
     
     showLoader();
     try {
-        const res = await fetch(`http://localhost:3001/api/superadmin/support/${id}/reply`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminId: admin.id, replyMessage }) });
+        const res = await fetch(`https://caoconaudio.onrender.com/api/superadmin/support/${id}/reply`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminId: admin.id, replyMessage }) });
         const data = await res.json(); hideLoader();
         if(res.ok) { document.getElementById('saSupportModal').classList.remove('active'); showModal('Thành công', data.message, true); loadSuperAdminData(); } 
         else showModal('Lỗi', data.message);
@@ -1541,7 +1541,7 @@ async function fetchNotifications() {
     const user = JSON.parse(userStr);
     
     try {
-        const res = await fetch(`http://localhost:3001/api/notifications/${user.id}`);
+        const res = await fetch(`https://caoconaudio.onrender.com/api/notifications/${user.id}`);
         const notis = await res.json();
         notiList.innerHTML = '';
         let unreadCount = 0;
@@ -1575,7 +1575,7 @@ markAllReadBtn.addEventListener('click', async () => {
     if (!userStr) return;
     const user = JSON.parse(userStr);
     try {
-        await fetch(`http://localhost:3001/api/notifications/${user.id}/read-all`, { method: 'POST' });
+        await fetch(`https://caoconaudio.onrender.com/api/notifications/${user.id}/read-all`, { method: 'POST' });
         fetchNotifications(); 
     } catch (e) {}
 });
@@ -1590,7 +1590,7 @@ document.getElementById('sendNotiForm').addEventListener('submit', async (e) => 
     const message = document.getElementById('notiMessage').value.trim();
     showLoader();
     try {
-        const res = await fetch('http://localhost:3001/api/admin/send-notification', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminId: user.id, targetUsername, title, message }) });
+        const res = await fetch('https://caoconaudio.onrender.com/api/admin/send-notification', { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({ adminId: user.id, targetUsername, title, message }) });
         const data = await res.json();
         hideLoader();
         if (res.ok) { showModal('Thành Công', data.message, true); document.getElementById('sendNotiForm').reset(); } else { showModal('Lỗi', data.message); }
@@ -1605,7 +1605,7 @@ setupSuperAdminTabs();
 async function fetchMovies() {
     try {
         // Đặt link tuyệt đối để chống lỗi khi mở bằng file tĩnh
-        const response = await fetch('http://localhost:3001/api/movies');
+        const response = await fetch('https://caoconaudio.onrender.com/api/movies');
         realMovies = await response.json();
         
         totalPages = Math.ceil(realMovies.length / 10) || 1;
