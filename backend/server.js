@@ -13,6 +13,14 @@ const PORT = process.env.PORT || 3000;
 app.use(cors());
 app.use(express.json());
 
+// LỚP BẢO VỆ CHỐNG TREO MÁY CHỦ: Báo lỗi ngay lập tức về Web nếu MongoDB bị mất kết nối
+app.use((req, res, next) => {
+    if (!isDBConnected && req.path.startsWith('/api/') && req.path !== '/api/movies') {
+        return res.status(500).json({ message: 'Lỗi Hệ Thống: Máy chủ chưa kết nối được Cơ sở dữ liệu (MongoDB). Vui lòng kiểm tra lại cấu hình MONGODB_URI trên Render hoặc mở IP (0.0.0.0/0) trên trang MongoDB Atlas!' });
+    }
+    next();
+});
+
 // Phục vụ các file tĩnh (HTML, CSS, JS) từ thư mục frontend
 app.use(express.static(path.join(__dirname, '../frontend')));
 
@@ -42,13 +50,18 @@ const initSuperAdmin = async () => {
     } catch (err) { console.error('Lỗi tạo Super Admin:', err); }
 };
 
-mongoose.connect(mongoURI)
-    .then(() => {
-        console.log('✅ Đã kết nối cơ sở dữ liệu MongoDB thành công!');
-        isDBConnected = true;
-        initSuperAdmin(); // Chạy tạo tài khoản bảo mật
-    })
-    .catch(err => console.error('❌ Lỗi kết nối MongoDB (Có thể do chưa mở IP trên trang Atlas):', err.message));
+if (!mongoURI) {
+    console.error('❌ CẢNH BÁO: Chưa có biến môi trường MONGODB_URI trên hệ thống Render!');
+} else {
+    // serverSelectionTimeoutMS: 5000 giúp máy chủ không bị treo nếu không tìm thấy Database
+    mongoose.connect(mongoURI, { serverSelectionTimeoutMS: 5000 })
+        .then(() => {
+            console.log('✅ Đã kết nối cơ sở dữ liệu MongoDB thành công!');
+            isDBConnected = true;
+            initSuperAdmin(); // Chạy tạo tài khoản bảo mật
+        })
+        .catch(err => console.error('❌ Lỗi kết nối MongoDB:', err.message));
+}
 
 // Tạo Schema (Cấu trúc dữ liệu) cho Truyện
 const movieSchema = new mongoose.Schema({
