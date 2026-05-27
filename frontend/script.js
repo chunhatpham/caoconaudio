@@ -1608,6 +1608,14 @@ async function fetchMovies() {
         const response = await fetch('https://caoconaudio.onrender.com/api/movies');
         realMovies = await response.json();
         
+        // Khắc phục lỗi nếu server Render đang khởi động lại hoặc báo lỗi
+        if (!Array.isArray(realMovies)) {
+            console.error("Lỗi Server Render:", realMovies);
+            realMovies = [];
+            showModal('Máy Chủ Đang Tải', 'Hệ thống Render đang khởi động hoặc cập nhật dữ liệu. Bạn vui lòng đợi 1-2 phút rồi F5 (tải lại trang) nhé!');
+            return;
+        }
+
         totalPages = Math.ceil(realMovies.length / 10) || 1;
         
         const homeMovies = realMovies.slice(0, 10); 
