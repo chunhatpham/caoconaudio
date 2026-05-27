@@ -150,21 +150,50 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+// Đọc phim từ các file JSON trong thư mục backend/data/movies/
+function getLocalMovies() {
+    const moviesDir = path.join(__dirname, 'data', 'movies');
+    let localMovies = [];
+    if (fs.existsSync(moviesDir)) {
+        const files = fs.readdirSync(moviesDir);
+        for (const file of files) {
+            if (file.endsWith('.json')) {
+                try {
+                    const rawData = fs.readFileSync(path.join(moviesDir, file));
+                    localMovies.push(JSON.parse(rawData));
+                } catch (e) { console.error(`Lỗi đọc file phim ${file}:`, e); }
+            }
+        }
+    }
+    return localMovies;
+}
+
+// Đồng bộ phim từ file vào MongoDB
+async function syncLocalMoviesToDB() {
+    const localMovies = getLocalMovies();
+    for (const movieData of localMovies) {
+        try {
+            // Tự động tạo mới hoặc cập nhật nếu có sửa link audio, KHÔNG làm mất view/like cũ
+            await Movie.findOneAndUpdate(
+                { name: movieData.name },
+                { $set: { ...movieData, updatedAt: Date.now() } },
+                { upsert: true, new: true }
+            );
+        } catch (e) { console.error(`Lỗi đồng bộ phim ${movieData.name}:`, e); }
+    }
+    if (localMovies.length > 0) console.log(`🎬 Đã tự động đồng bộ ${localMovies.length} phim từ Code vào Database!`);
+}
+
 // API Endpoint: Lấy danh sách truyện từ MongoDB cho Frontend
 app.get('/api/movies', async (req, res) => {
     try {
         if (!isDBConnected) {
-            // Tự động dự phòng: Trả về phim Demo nếu Database bị lỗi để web không bị trắng
+            // Đọc từ file local nếu mất kết nối Database
+            const localMovies = getLocalMovies().map((m, i) => ({ ...m, _id: `local_${i}`, views: m.views || 0, likes: m.likes || 0 }));
+            if (localMovies.length > 0) return res.json(localMovies);
+            
+            // Phim Demo dự phòng cuối cùng
             return res.json([
-                {
-                    name: "Gia Đình Giàu Mà Mình Lại Khổ",
-                    ss1: "https://videotourl.com/audio/1779906544582-f31c938b-fc06-4103-bd2f-f85837cb6c71.mp3",
-                    ss2: "https://videotourl.com/audio/1779906606083-9e2f3e63-13e2-4b39-b335-06bd32778728.mp3",
-                    ss3: "https://videotourl.com/audio/1779906640483-715a9ada-aa2f-4720-8968-0205930460c3.mp3",
-                    ss4: "#", ss5: "#",
-                    views: 0, likes: 0,
-                    image: "https://i.postimg.cc/NGX4d1N8/IMG-2334.jpg"
-                },
                 {
                     name: "Demo 1 (Chưa Kết Nối Database)",
                     ss1: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
