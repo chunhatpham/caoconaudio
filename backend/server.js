@@ -173,6 +173,15 @@ const hardcodedMovies = [
         ss3: "https://videotourl.com/audio/1779956410151-e3af6d49-fb98-446d-8b5f-3711ce162478.mp3",
         ss4: "#",
         ss5: "#"
+    },
+    {
+        name: "Ở lại cùng vợ lúc khó khăn",
+        image: "https://i.postimg.cc/kMScTxjw/IMG-2336.jpg",
+        ss1: "https://videotourl.com/audio/1779957207100-ca5a9359-cf54-4121-87f2-78f6bb414ade.mp3",
+        ss2: "https://videotourl.com/audio/1779957256801-8db163e2-e859-4414-b3a6-94ad8e47a6f8.mp3",
+        ss3: "https://videotourl.com/audio/1779957332674-13baa7ee-863e-4829-a69d-dae08cb688d0.mp3",
+        ss4: "#",
+        ss5: "#"
     }
     // Thêm phim mới ở đây, ví dụ:
     // , { name: "Phim Mới 2", image: "link_anh_2", ss1: "link_audio_2" ... }
