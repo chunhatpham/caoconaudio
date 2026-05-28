@@ -151,15 +151,28 @@ const transporter = nodemailer.createTransport({
     }
 });
 
+// =================================================================
+// DỮ LIỆU PHIM CỨNG - BẤT BẠI (THEO YÊU CẦU CỦA BẠN)
+// Từ nay, bạn chỉ cần thêm phim mới vào danh sách này là xong!
+// =================================================================
+const hardcodedMovies = [
+    {
+        name: "Gia Đình Giàu Mà Mình Lại Khổ",
+        image: "https://i.postimg.cc/NGX4d1N8/IMG-2334.jpg",
+        ss1: "https://videotourl.com/audio/1779906544582-f31c938b-fc06-4103-bd2f-f85837cb6c71.mp3",
+        ss2: "https://videotourl.com/audio/1779906606083-9e2f3e63-13e2-4b39-b335-06bd32778728.mp3",
+        ss3: "https://videotourl.com/audio/1779906640483-715a9ada-aa2f-4720-8968-0205930460c3.mp3",
+        ss4: "#",
+        ss5: "#"
+    }
+    // Thêm phim mới ở đây, ví dụ:
+    // , { name: "Phim Mới 2", image: "link_anh_2", ss1: "link_audio_2" ... }
+];
+
 // Đọc phim trực tiếp từ mã nguồn JS (Chuẩn 100% không bao giờ lỗi)
 function getLocalMovies() {
-    try {
-        const movies = require('./movies_data');
-        return movies || [];
-    } catch (error) {
-        console.error("Lỗi đọc danh bạ phim:", error);
-        return [];
-    }
+    // Bỏ qua việc đọc file, lấy thẳng dữ liệu cứng bên trên
+    return hardcodedMovies;
 }
 
 // Đồng bộ phim từ file vào MongoDB
@@ -194,20 +207,13 @@ app.get('/api/movies', async (req, res) => {
     try {
         if (!isDBConnected) {
             // PHƯƠNG ÁN BẤT BẠI: Nếu DB lỗi, trả về phim cứng từ code để web không bao giờ trắng!
-            return res.json([
-                {
-                    _id: "hardcoded_movie_1",
-                    name: "Gia Đình Giàu Mà Mình Lại Khổ",
-                    image: "https://i.postimg.cc/NGX4d1N8/IMG-2334.jpg",
-                    ss1: "https://videotourl.com/audio/1779906544582-f31c938b-fc06-4103-bd2f-f85837cb6c71.mp3",
-                    ss2: "https://videotourl.com/audio/1779906606083-9e2f3e63-13e2-4b39-b335-06bd32778728.mp3",
-                    ss3: "https://videotourl.com/audio/1779906640483-715a9ada-aa2f-4720-8968-0205930460c3.mp3",
-                    ss4: "#",
-                    ss5: "#",
-                    views: 0,
-                    likes: 0
-                }
-            ]);
+            const fallbackMovies = hardcodedMovies.map((m, i) => ({
+                ...m,
+                _id: `hardcoded_${i}`,
+                views: 0,
+                likes: 0
+            }));
+            return res.json(fallbackMovies);
         }
 
         let movies = await Movie.find().sort({ updatedAt: -1, createdAt: -1 });
