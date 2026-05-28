@@ -5,7 +5,6 @@ const path = require('path');
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
 const nodemailer = require('nodemailer');
-const fs = require('fs');
 
 const app = express();
 const PORT = process.env.PORT || 3000;
@@ -194,30 +193,33 @@ app.post('/api/sync-movies', async (req, res) => {
 app.get('/api/movies', async (req, res) => {
     try {
         if (!isDBConnected) {
-            // Đọc từ file local nếu mất kết nối Database
-            const localMovies = getLocalMovies().map((m, i) => ({ ...m, _id: `local_${i}`, views: m.views || 0, likes: m.likes || 0 }));
-            if (localMovies.length > 0) return res.json(localMovies);
-            
-            // Phim Demo dự phòng cuối cùng
+            // PHƯƠNG ÁN BẤT BẠI: Nếu DB lỗi, trả về phim cứng từ code để web không bao giờ trắng!
             return res.json([
                 {
-                    name: "Demo 1 (Chưa Kết Nối Database)",
-                    ss1: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-1.mp3",
-                    ss2: "#", ss3: "#", ss4: "#", ss5: "#",
-                    views: 1200, likes: 45,
-                    image: "https://i.postimg.cc/25nNvXsX/BFA37734-56C0-4950-A46C-3952E9F1A499.png"
-                },
-                {
-                    name: "Demo 2 (Chưa Kết Nối Database)",
-                    ss1: "https://www.soundhelix.com/examples/mp3/SoundHelix-Song-2.mp3",
-                    ss2: "#", ss3: "#", ss4: "#", ss5: "#",
-                    views: 800, likes: 20,
-                    image: "https://i.postimg.cc/25nNvXsX/BFA37734-56C0-4950-A46C-3952E9F1A499.png"
+                    _id: "hardcoded_movie_1",
+                    name: "Gia Đình Giàu Mà Mình Lại Khổ",
+                    image: "https://i.postimg.cc/NGX4d1N8/IMG-2334.jpg",
+                    ss1: "https://videotourl.com/audio/1779906544582-f31c938b-fc06-4103-bd2f-f85837cb6c71.mp3",
+                    ss2: "https://videotourl.com/audio/1779906606083-9e2f3e63-13e2-4b39-b335-06bd32778728.mp3",
+                    ss3: "https://videotourl.com/audio/1779906640483-715a9ada-aa2f-4720-8968-0205930460c3.mp3",
+                    ss4: "#",
+                    ss5: "#",
+                    views: 0,
+                    likes: 0
                 }
             ]);
         }
-        // Lấy tất cả truyện từ DB, ưu tiên sắp xếp theo thời gian mới cập nhật nhất (updatedAt: -1)
-        const movies = await Movie.find().sort({ updatedAt: -1, createdAt: -1 });
+
+        let movies = await Movie.find().sort({ updatedAt: -1, createdAt: -1 });
+
+        // TỰ ĐỘNG CHỮA LỖI: Nếu DB trống, hãy thử đồng bộ từ code và tải lại
+        if (movies.length === 0 && isDBConnected) {
+            console.log('⚠️ Cơ sở dữ liệu trống, đang thử đồng bộ từ mã nguồn...');
+            await syncLocalMoviesToDB();
+            movies = await Movie.find().sort({ updatedAt: -1, createdAt: -1 });
+            console.log(`🔄 Sau khi đồng bộ, tìm thấy ${movies.length} phim.`);
+        }
+
         res.json(movies);
     } catch (error) {
         console.error(error);
