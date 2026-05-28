@@ -152,40 +152,15 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// Đọc phim từ các file JSON (Bản nâng cấp tối thượng quét mọi ngóc ngách)
+// Đọc phim trực tiếp từ mã nguồn JS (Chuẩn 100% không bao giờ lỗi)
 function getLocalMovies() {
-    const searchDirs = [
-        path.join(__dirname, 'data', 'movies'),
-        path.join(__dirname, 'Data', 'Movies'), // Chống lỗi sai chữ hoa/thường trên Render
-        __dirname // Quét luôn cả bên ngoài thư mục backend lỡ file nằm sai chỗ
-    ];
-    
-    let localMovies = [];
-    for (const dir of searchDirs) {
-        if (fs.existsSync(dir)) {
-            const files = fs.readdirSync(dir);
-            for (const file of files) {
-                if (file.toLowerCase().includes('.json') && !file.includes('package')) {
-                    try {
-                        let rawData = fs.readFileSync(path.join(dir, file), 'utf8');
-                        rawData = rawData.replace(/^\uFEFF/, '').trim(); // Xóa lỗi ký tự ẩn của Windows
-                        if (rawData) localMovies.push(JSON.parse(rawData));
-                    } catch (e) { console.error(`Lỗi đọc file phim ${file}:`, e); }
-                }
-            }
-        }
+    try {
+        const movies = require('./movies_data');
+        return movies || [];
+    } catch (error) {
+        console.error("Lỗi đọc danh bạ phim:", error);
+        return [];
     }
-    
-    // Lọc trùng lặp lỡ quét trúng 2 thư mục
-    const uniqueMovies = [];
-    const names = new Set();
-    for (const m of localMovies) {
-        if (m && m.name && !names.has(m.name)) {
-            uniqueMovies.push(m);
-            names.add(m.name);
-        }
-    }
-    return uniqueMovies;
 }
 
 // Đồng bộ phim từ file vào MongoDB
