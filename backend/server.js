@@ -164,6 +164,15 @@ const hardcodedMovies = [
         ss3: "https://videotourl.com/audio/1779906640483-715a9ada-aa2f-4720-8968-0205930460c3.mp3",
         ss4: "#",
         ss5: "#"
+    },
+    {
+        name: "Tôi Bảo Vệ Em Gái",
+        image: "https://i.postimg.cc/7PzVKgBV/IMG-2335.jpg",
+        ss1: "https://videotourl.com/audio/1779956284407-faca6ea4-3431-4cdb-93dd-93420e0b28af.mp3",
+        ss2: "https://videotourl.com/audio/1779956378549-4d8a3340-49bd-440a-b356-ee9f95d6f266.mp3",
+        ss3: "https://videotourl.com/audio/1779956410151-e3af6d49-fb98-446d-8b5f-3711ce162478.mp3",
+        ss4: "#",
+        ss5: "#"
     }
     // Thêm phim mới ở đây, ví dụ:
     // , { name: "Phim Mới 2", image: "link_anh_2", ss1: "link_audio_2" ... }
