@@ -159,7 +159,7 @@ function getLocalMovies() {
     if (fs.existsSync(moviesDir)) {
         const files = fs.readdirSync(moviesDir);
         for (const file of files) {
-            if (file.endsWith('.json')) {
+            if (file.includes('.json')) {
                 try {
                     const rawData = fs.readFileSync(path.join(moviesDir, file));
                     localMovies.push(JSON.parse(rawData));
