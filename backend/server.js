@@ -66,6 +66,7 @@ if (!mongoURI) {
             isDBConnected = true;
             dbConnectionError = null;
             initSuperAdmin(); // Chạy tạo tài khoản bảo mật
+            syncLocalMoviesToDB(); // Đảm bảo tự động đồng bộ phim khi server khởi động
         })
         .catch(err => {
             console.error('❌ Lỗi kết nối MongoDB:', err.message);
@@ -183,6 +184,16 @@ async function syncLocalMoviesToDB() {
     }
     if (localMovies.length > 0) console.log(`🎬 Đã tự động đồng bộ ${localMovies.length} phim từ Code vào Database!`);
 }
+
+// API Endpoint: Nút bấm đồng bộ thủ công từ Code (Dành cho Admin)
+app.post('/api/sync-movies', async (req, res) => {
+    try {
+        await syncLocalMoviesToDB();
+        res.json({ message: 'Đã đồng bộ phim từ thư mục code vào web thành công!' });
+    } catch (error) {
+        res.status(500).json({ message: 'Lỗi khi đồng bộ phim' });
+    }
+});
 
 // API Endpoint: Lấy danh sách truyện từ MongoDB cho Frontend
 app.get('/api/movies', async (req, res) => {

@@ -1077,6 +1077,22 @@ document.getElementById('addMovieForm').addEventListener('submit', async (e) => 
     } catch(err) { hideLoader(); showModal('Lỗi', 'Lỗi kết nối máy chủ.'); }
 });
 
+// Hàm đồng bộ phim thủ công từ file Code (JSON)
+async function syncMoviesFromCode() {
+    showLoader();
+    try {
+        const res = await fetch('https://caoconaudio.onrender.com/api/sync-movies', { method: 'POST' });
+        const data = await res.json();
+        hideLoader();
+        if(res.ok) {
+            showModal('Thành Công', data.message, true);
+            fetchMovies(); // Reload lại danh sách phim
+        } else {
+            showModal('Lỗi', data.message);
+        }
+    } catch(err) { hideLoader(); showModal('Lỗi', 'Lỗi kết nối máy chủ.'); }
+}
+
 function loadAdminMovies() {
     const list = document.getElementById('adminMovieList');
     list.innerHTML = '';
