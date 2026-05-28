@@ -152,22 +152,40 @@ const transporter = nodemailer.createTransport({
     }
 });
 
-// Đọc phim từ các file JSON trong thư mục backend/data/movies/
+// Đọc phim từ các file JSON (Bản nâng cấp tối thượng quét mọi ngóc ngách)
 function getLocalMovies() {
-    const moviesDir = path.join(__dirname, 'data', 'movies');
+    const searchDirs = [
+        path.join(__dirname, 'data', 'movies'),
+        path.join(__dirname, 'Data', 'Movies'), // Chống lỗi sai chữ hoa/thường trên Render
+        __dirname // Quét luôn cả bên ngoài thư mục backend lỡ file nằm sai chỗ
+    ];
+    
     let localMovies = [];
-    if (fs.existsSync(moviesDir)) {
-        const files = fs.readdirSync(moviesDir);
-        for (const file of files) {
-            if (file.includes('.json')) {
-                try {
-                    const rawData = fs.readFileSync(path.join(moviesDir, file));
-                    localMovies.push(JSON.parse(rawData));
-                } catch (e) { console.error(`Lỗi đọc file phim ${file}:`, e); }
+    for (const dir of searchDirs) {
+        if (fs.existsSync(dir)) {
+            const files = fs.readdirSync(dir);
+            for (const file of files) {
+                if (file.toLowerCase().includes('.json') && !file.includes('package')) {
+                    try {
+                        let rawData = fs.readFileSync(path.join(dir, file), 'utf8');
+                        rawData = rawData.replace(/^\uFEFF/, '').trim(); // Xóa lỗi ký tự ẩn của Windows
+                        if (rawData) localMovies.push(JSON.parse(rawData));
+                    } catch (e) { console.error(`Lỗi đọc file phim ${file}:`, e); }
+                }
             }
         }
     }
-    return localMovies;
+    
+    // Lọc trùng lặp lỡ quét trúng 2 thư mục
+    const uniqueMovies = [];
+    const names = new Set();
+    for (const m of localMovies) {
+        if (m && m.name && !names.has(m.name)) {
+            uniqueMovies.push(m);
+            names.add(m.name);
+        }
+    }
+    return uniqueMovies;
 }
 
 // Đồng bộ phim từ file vào MongoDB
@@ -189,8 +207,9 @@ async function syncLocalMoviesToDB() {
 // API Endpoint: Nút bấm đồng bộ thủ công từ Code (Dành cho Admin)
 app.post('/api/sync-movies', async (req, res) => {
     try {
+        const localMovies = getLocalMovies();
         await syncLocalMoviesToDB();
-        res.json({ message: 'Đã đồng bộ phim từ thư mục code vào web thành công!' });
+        res.json({ message: `Tuyệt vời! Đã quét thấy ${localMovies.length} file phim và nạp thành công lên Web!` });
     } catch (error) {
         res.status(500).json({ message: 'Lỗi khi đồng bộ phim' });
     }
