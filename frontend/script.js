@@ -154,14 +154,15 @@ function openMovieDetail(movie) {
     seasonsList.innerHTML = '';
     for(let i = 1; i <= 5; i++) {
         const link = movie[`ss${i}`] || '#';
-        const isLocked = i >= 3 && !isPremium();
+        const isPremiumSeason = i >= 3;
+        const isLocked = isPremiumSeason && !isPremium();
 
         const btn = document.createElement('button');
         btn.className = 'season-btn';
         if (currentPlayingMovieId === movie._id && currentPlayingSeason === `Phần ${i}`) btn.classList.add('playing');
         
-        if (isLocked) {
-            btn.innerHTML = `<i class="fa-solid fa-crown" style="margin-right: 5px; color: #d97706;"></i> Phần ${i}`;
+        if (isPremiumSeason) {
+            btn.innerHTML = `<i class="fa-solid fa-crown crown-icon"></i> Phần ${i}`;
             btn.classList.add('premium-required-btn');
         } else {
             btn.innerText = `Phần ${i}`;
