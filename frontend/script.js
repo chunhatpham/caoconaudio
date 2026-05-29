@@ -161,8 +161,8 @@ function openMovieDetail(movie) {
         if (currentPlayingMovieId === movie._id && currentPlayingSeason === `Phần ${i}`) btn.classList.add('playing');
         
         if (isLocked) {
-            btn.innerHTML = `<i class="fa-solid fa-lock" style="margin-right: 5px;"></i> Phần ${i}`;
-            btn.classList.add('locked-btn');
+            btn.innerHTML = `<i class="fa-solid fa-crown" style="margin-right: 5px; color: #d97706;"></i> Phần ${i}`;
+            btn.classList.add('premium-required-btn');
         } else {
             btn.innerText = `Phần ${i}`;
         }

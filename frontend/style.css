@@ -145,6 +145,11 @@ main { margin-top: 100px; padding: 0 20px 40px 20px; display: flex; flex-directi
 .season-btn.playing { background: var(--accent-gradient); color: #fff; border: none; box-shadow: 0 4px 15px rgba(255, 94, 0, 0.3); }
 .locked-btn { color: #a1a1aa !important; }
 
+.premium-required-btn { background: linear-gradient(135deg, rgba(251, 191, 36, 0.05), rgba(245, 158, 11, 0.15)); border: 1px solid #fbbf24 !important; color: #d97706 !important; font-weight: 800; position: relative; overflow: hidden; transition: all 0.3s var(--bezier-smooth); }
+.premium-required-btn::after { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%); transform: rotate(30deg) translateX(-100%); animation: shineEffect 2.5s infinite; pointer-events: none; }
+.premium-required-btn:hover { background: linear-gradient(135deg, #fde68a, #fcd34d) !important; color: #b45309 !important; border-color: #f59e0b !important; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4) !important; transform: translateY(-2px); }
+@keyframes shineEffect { 0% { transform: rotate(30deg) translateX(-100%); } 20%, 100% { transform: rotate(30deg) translateX(100%); } }
+
 .premium-notice-box { width: 100%; background: linear-gradient(135deg, #fffaf0, #fff5e6); border: 1px solid rgba(255, 140, 59, 0.3); padding: 20px; border-radius: 20px; text-align: left; }
 .premium-notice-box h4 { color: #d97706; font-size: 16px; margin-bottom: 8px; font-weight: 800; display: flex; align-items: center; gap: 8px; }
 .premium-notice-box p { color: var(--text-main); font-size: 13px; line-height: 1.6; margin-bottom: 15px; font-weight: 500; }
@@ -497,13 +502,16 @@ footer { width: 100%; background: #fff; border-top: 1px solid var(--glass-border
     .premium-notice-box { padding: 15px; }
     .premium-btn { padding: 10px; font-size: 14px; }
     
-    .global-player { padding: 15px 15px; height: auto; flex-wrap: wrap; gap: 12px; justify-content: center; width: calc(100% - 20px); bottom: 15px; border-radius: 20px; }
-    .gp-info { width: 100%; flex: none; justify-content: space-between; }
-    .gp-thumb { width: 50px; height: 50px; }
-    .gp-controls { width: 100%; max-width: 100%; }
-    .gp-buttons { margin-bottom: 5px; }
-    .gp-actions { position: absolute; top: 20px; right: 15px; width: auto; gap: 5px; }
-    body.player-active { padding-bottom: 160px; }
+    .global-player { padding: 12px 15px; height: auto; flex-wrap: wrap; gap: 10px; justify-content: space-between; width: calc(100% - 20px); bottom: 15px; border-radius: 20px; flex-direction: row; }
+    .gp-info { width: calc(100% - 135px); flex: none; justify-content: flex-start; gap: 12px; }
+    .gp-text { width: calc(100% - 55px); }
+    .gp-thumb { width: 45px; height: 45px; border-radius: 10px; }
+    .gp-controls { width: 100%; max-width: 100%; order: 3; margin-top: 5px; }
+    .gp-buttons { margin-bottom: 8px; gap: 20px; }
+    .play-pause-btn { width: 40px; height: 40px; font-size: 16px; }
+    .ctrl-btn { width: 32px; height: 32px; font-size: 16px; }
+    .gp-actions { position: static; width: auto; gap: 5px; margin-top: 5px; justify-content: flex-end; }
+    body.player-active { padding-bottom: 150px; }
 
     .side-menu { width: 85vw; max-width: 320px; right: -85vw; }
     .pagination-container { gap: 8px; }
