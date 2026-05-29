@@ -145,10 +145,11 @@ main { margin-top: 100px; padding: 0 20px 40px 20px; display: flex; flex-directi
 .season-btn.playing { background: var(--accent-gradient) !important; color: #fff !important; border: 1px solid transparent !important; box-shadow: 0 4px 15px rgba(255, 94, 0, 0.3) !important; }
 .locked-btn { color: #a1a1aa !important; }
 
-.premium-required-btn { background: linear-gradient(135deg, rgba(251, 191, 36, 0.05), rgba(245, 158, 11, 0.15)); border: 1px solid #fbbf24 !important; color: #d97706 !important; font-weight: 800; position: relative; overflow: hidden; transition: all 0.3s var(--bezier-smooth); }
+.premium-required-btn { background: linear-gradient(135deg, #fef3c7, #fde68a) !important; border: 1px solid #fbbf24 !important; color: #b45309 !important; font-weight: 800; position: relative; overflow: hidden; transition: all 0.3s var(--bezier-smooth); box-shadow: 0 2px 10px rgba(245, 158, 11, 0.1); }
 .premium-required-btn::after { content: ''; position: absolute; top: -50%; left: -50%; width: 200%; height: 200%; background: linear-gradient(to right, rgba(255,255,255,0) 0%, rgba(255,255,255,0.6) 50%, rgba(255,255,255,0) 100%); transform: rotate(30deg) translateX(-100%); animation: shineEffect 2.5s infinite; pointer-events: none; }
-.premium-required-btn:hover { background: linear-gradient(135deg, #fde68a, #fcd34d) !important; color: #b45309 !important; border-color: #f59e0b !important; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4) !important; transform: translateY(-2px); }
-.premium-required-btn .crown-icon { margin-right: 5px; color: #d97706; transition: color 0.3s; }
+.premium-required-btn:hover { background: linear-gradient(135deg, #fcd34d, #fbbf24) !important; color: #92400e !important; border-color: #f59e0b !important; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.4) !important; transform: translateY(-2px); }
+.premium-required-btn.playing { background: linear-gradient(135deg, #fbbf24, #f59e0b) !important; color: #fff !important; border: 1px solid #d97706 !important; box-shadow: 0 4px 15px rgba(245, 158, 11, 0.5) !important; }
+.premium-required-btn .crown-icon { margin-right: 5px; color: #b45309; transition: color 0.3s; }
 .premium-required-btn.playing .crown-icon { color: #fff !important; }
 @keyframes shineEffect { 0% { transform: rotate(30deg) translateX(-100%); } 20%, 100% { transform: rotate(30deg) translateX(100%); } }
 

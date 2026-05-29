@@ -171,12 +171,10 @@ function openMovieDetail(movie) {
         btn.onclick = () => {
             if (isLocked) {
                 showModal('Yêu Cầu Premium', `Phần ${i} trở đi chỉ dành riêng cho tài khoản Premium (Hạng Bạc trở lên). Vui lòng nâng cấp để nghe trọn bộ!`);
-                closeMovieDetail();
-                switchTab('premium-tab');
                 return;
             }
             if(link === '#') {
-                showModal('Đang Cập Nhật', `Phần ${i} hiện đang được cập nhật, sẽ sớm có mặt nhất!`);
+                showModal('Đang Cập Nhật', `Âm thanh của phần ${i} sẽ sớm được cập nhật, bạn vui lòng chờ nhé!`);
             } else {
                 // Bỏ đánh dấu các nút cũ, đánh dấu nút mới
                 document.querySelectorAll('.season-btn').forEach(b => b.classList.remove('playing'));
